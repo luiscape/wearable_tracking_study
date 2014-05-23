@@ -1,0 +1,7 @@
+.Rproj.user
+.Rhistory
+.RData
+.DS_Store
+data/**
+data/*
+wearable_tracking_study.Rproj
