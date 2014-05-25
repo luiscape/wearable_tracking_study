@@ -11,7 +11,7 @@ The main content of this repository is the[run_analysis.R](https://github.com/lu
 
 The tidy version of the original dataset uses Hadley Wickham's [tidy data principles](http://vita.had.co.nz/papers/tidy-data.pdf). It functions in 6 steps as follows:
 
-* **Step 1:** fetching the data.
+* **Step 1:** fetches the data from the web.
 * **Step 2:** merges the test and train datasets into a single dataset.
 * **Step 3:** uses descriptive activity names instead of integers.
 * **Step 4:** extracts only the mean and standard deviation measurements.
