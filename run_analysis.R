@@ -1,9 +1,28 @@
-# You should create one R script called run_analysis.R that does the following. 
+## Coursera Getting and Cleaning Data -- Programming Assignment ##
+# 
+# In this assignment we were asked to fetch data from the internet 
+# and make it "tidy". I used Hadley Wickham's tidy data principles
+# when writing this function. 
+#
+# This function has 6 steps as follows: 
+#
+#   Step 1: fetching the data. 
+#   Step 2: merges the test and train datasets into a single dataset.
+#   Step 3: uses descriptive activity names instead of integers.
+#   Step 4: extracts only the mean and standard deviation measurements.
+#   Step 5: labels the variable names in more human readable forms and "tidies"
+#           the dataset following Wickham's principles.
+#   Step 6: stores the tidy dataset in a CSV file.
+#
+#
+# Author: Luis Capelo | @luiscape
 
+# Loading dependencies.
 library(reshape2)  # for using melt. 
 library(plyr)  # for using rbind.fill
 
-## FETCHING DATA ##
+## STEP 1 ##
+# Fetching the data.
 # Opening a temporary connection and downloading the data.
 temp <- tempfile()
 download.file("https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip", 
@@ -31,7 +50,7 @@ featuresList <- as.list(featuresList[2])
 featuresList <- paste(featuresList[[1]])
 
 
-## STEP 1 ##
+## STEP 2 ##
 # Merging the training and the test sets to create one data set.
 
 # Adding the original variable names to the Train dataset.
@@ -52,7 +71,7 @@ testCombined$label <- 'Test'
 mergedDataset <- rbind(trainCombined, testCombined)
 
 
-## STEP 2 ##
+## STEP 3 ##
 # Using descriptive activity names to name the activities in the data set
 
 # For loop that adds labels to the activities. 
@@ -66,7 +85,7 @@ for (i in 1:nrow(activityLabels)) {
 }
 
 
-## STEP 3 ##
+## STEP 4 ##
 # Extracting only the measurements on the mean and standard deviation for each measurement.
 
 # This regex allows me to identify what are the variables that have
@@ -83,7 +102,7 @@ meanstdData <- data.frame(mergedDataset[, meanstdIndex])
 
 
 
-## STEP 4 ##
+## STEP 5 ##
 # Appropriately labeling the data set with descriptive activity names. 
 
 # Here I am using the Tidy Data article by Hadley Wickham to determine 
@@ -232,7 +251,8 @@ TidyThisData <- function(df = NULL) {
 
 TidyData <- TidyThisData(meanstdData)
 
-
+## STEP 5 ##
 # Storing the resulting dataset.
+dir.create('data')
 write.csv(TidyData, 'data/TidyData.csv', row.names = FALSE)
 
