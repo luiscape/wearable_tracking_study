@@ -255,4 +255,3 @@ TidyData <- TidyThisData(meanstdData)
 # Storing the resulting dataset.
 dir.create('data')
 write.csv(TidyData, 'data/TidyData.csv', row.names = FALSE)
-
