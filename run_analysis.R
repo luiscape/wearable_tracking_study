@@ -100,8 +100,12 @@ ProperNaming <- function(df = NULL) {
     
     newNames <- names(meanstdData)
  
-    # Changing the letters
-    newNames[1:40] <- sub("t", "TimeSignal", newNames[1:40])  # Time signal.
+    # Renaming the labels and activity.
+    newNames <- sub("activity", "Activity", newNames)  # Time signal.
+    newNames <- sub("label", "Label", newNames)  # Time signal.
+    
+    # Renaming the signal letters.
+    newNames[2:40] <- sub("t", "TimeSignal", newNames[2:40])  # Time signal.
     newNames[40:79] <- sub("f", "FFTransformation", newNames[40:79])  # FFT transformation.
     
     # Renaming the sensor type.
