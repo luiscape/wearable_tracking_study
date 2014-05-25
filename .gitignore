@@ -2,6 +2,6 @@
 .Rhistory
 .RData
 .DS_Store
-data/**
-data/*
+original_data/**
+original_data/*
 wearable_tracking_study.Rproj

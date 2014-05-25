@@ -33,8 +33,7 @@ featuresList <- paste(featuresList[[1]])
 
 
 # 1. Merges the training and the test sets to create one data set.
-
-# Fixing the variable names.
+# Adding the original variable names. 
 names(xTrain) <- paste0(featuresList)
 colnames(yTrain)[1] <- 'subject'
 trainCombined <- cbind(yTrain, xTrain)
@@ -43,7 +42,16 @@ names(xTest) <- paste0(featuresList)
 colnames(yTest)[1] <- 'subject'
 testCombined <- cbind(yTest, xTest)
 
-# Adding labels to the activities.
+
+
+# Adding labels for test and train datasets. 
+trainCombined$label <- 'Train'
+testCombined$label <- 'Test'
+
+# Merging both test and train datasets. 
+mergedDataset <- rbind(trainCombined, testCombined)
+
+# 3.Uses descriptive activity names to name the activities in the data set
 for (i in 1:nrow(activityLabels)) {
     testCombined$subject <- gsub(i, as.character(activityLabels[i, 2]), testCombined$subject)
     trainCombined$subject <- gsub(i, as.character(activityLabels[i, 2]), trainCombined$subject)
@@ -53,34 +61,78 @@ for (i in 1:nrow(activityLabels)) {
     }
 }
 
-# Adding labels for test and train datasets. 
-trainCombined$label <- 'Train'
-testCombined$label <- 'Test'
-
-# Merging both test and train datasets. 
-mergedDataset <- rbind(trainCombined, testCombined)
-
-# This regex allows me to identify what are the variables that have
-# the mean or the standard deviation in them. 
-grepl(pattern = "-mean()", names(mergedDataset))
-grepl(pattern = "-std()", names(mergedDataset))
-
-# Identify those variables that have -mean() or -std() in it. 
-# And extract them into a separate dataset.
-
-
-# These seem to be the subject list. There is also the 
-# subject_train / test.txt file. Read the docs!
-
-
-# Fail by regular merge. 
-# x <- merge(test_combined, train_combined, by = 'subject')
-
 
 # 2. Extracts only the measurements on the mean and standard deviation for each measurement.
+# This regex allows me to identify what are the variables that have
+# the mean or the standard deviation in them. 
+meanIndex <- which(grepl(pattern = "-mean()", names(mergedDataset)))
+stdIndex <- which(grepl(pattern = "-std()", names(mergedDataset)))
+labelIndex <- which(grepl(pattern = "label", names(mergedDataset)))
+avtivityIndex <- which(grepl(pattern = "activity", names(mergedDataset)))
+meanstdIndex <- c(meanIndex, stdIndex, labelIndex, avtivityIndex)
+meanstdIndex <- sort(meanstdIndex)
+
+# Selecting only the mean and std variables. 
+meanstdData <- data.frame(mergedDataset[, meanstdIndex])
+
+
+
+# 4. Appropriately labels the data set with descriptive activity names. 
+
+#### Naming function ####
+#
+# The structure of names is the following: 
+#
+#          1 2   3    4     5
+#          ↓ ↓   ↓    ↓     ↓
+#          tBodyGyro.mean...X
+# 
+# 1. A letter (t or f): 
+# 2. A type of capture (Body, BodyBody or Gravity): 
+# 3. The sensor (Acc, AccJerk, AccMag, AccJerkMag, Gyro, GyroJerk, GyroMag): 
+# 4. The measurement (mean, std, meanFreq):
+# 5. A trailing letter (X, Y or Z) for the 3-axial signals.
+
+
+
+
+ProperNaming <- function(df = NULL) { 
+    
+    newNames <- names(meanstdData)
  
+    # Changing the letters
+    newNames[1:40] <- sub("t", "TimeSignal", newNames[1:40])  # Time signal.
+    newNames[40:79] <- sub("f", "FFTransformation", newNames[40:79])  # FFT transformation.
+    
+    # Renaming the sensor type.
+    newNames <- gsub("Acc", "Accelerometer", newNames)
+    newNames <- gsub("AccelerometerJerkMag", "AccelerometerJerkMagnitude", newNames)
+    newNames <- gsub("AccelerometerMag", "Accelerometer", newNames)    
+    newNames <- gsub("Gyro", "Gyroscope", newNames)
+    newNames <- gsub("GyroscopeMag", "GyroscopeMagnitude", newNames)
+        
+    # Renaming the measurement.
+    newNames <- gsub(".mean", "_Mean", newNames)
+    newNames <- gsub(".std", "_StandardDeviation", newNames)
+    newNames <- gsub(".meanFreq", "_MeanFrequency", newNames)
+    
+    # Renaming the final letters.
+    newNames <- gsub("...X", "XAxis", newNames)
+    newNames <- gsub("...Y", "YAxis", newNames)
+    newNames <- gsub("...Z", "ZAxis", newNames)
+    
+    # Cleaning up.
+    newNames <- gsub("..", "", newNames, fixed = TRUE)
+
+    names(df) <- newNames
+    
+    df
+}
+
+meanstdData <- ProperNaming(meanstdData)
 
 
-
+# Storing the resulting dataset.
+write.csv(meanstdData, 'data/TidyData.csv', row.names = FALSE)
 
 
